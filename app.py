@@ -169,6 +169,8 @@ app.layout = html.Div(children=[
     ])        
 ])
 
+app.run_server(host= '0.0.0.0')
+
 ######################
 # Callback Functions #
 ######################
@@ -228,7 +230,7 @@ def calculate_monthly_returns (exchange, margin, start, end):
         'layout': {
             'title': 'Overview of Monthly Performance'
         }
-    }, f'{btc_returns:0.2f}%', f'{strat_returns:0.2f}%', f'{strat_vs_market:0.2f}%', dff.to_dict('records'), print_bar_plot(dff)
+    }, str(btc_returns), str(strat_returns), str(strat_vs_market), dff.to_dict('records'), print_bar_plot(dff)
 
 
 def print_bar_plot (dff):
