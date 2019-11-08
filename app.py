@@ -233,7 +233,7 @@ def calculate_monthly_returns (exchange, margin, start, end):
 
 def print_bar_plot (dff):
     
-    long_df, short_df = get_bar_plot_dat'title': 'Overview of Monthly Performance'aframes(dff)
+    long_df, short_df = get_bar_plot_dataframes(dff)
     
     return  go.Figure(
         data=[
