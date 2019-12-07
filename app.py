@@ -143,7 +143,7 @@ app.layout = html.Div(children=[
                         id="pnl-types",
                         className="six columns card",
                         figure={},
-                        style={'height':'450px', 'width': '800px'}
+                        # style={'height':'450px', 'width': '800px'}
                     )
                 ]
         ),
@@ -154,14 +154,12 @@ app.layout = html.Div(children=[
                     dcc.Graph(
                         id="daily-btc",
                         className="six columns card",
-                        figure={},
-                        style={'height':'450px', 'width': '1100px'}
+                        figure={},                        
                     ),
                     dcc.Graph(
                         id="balance",
                         className="six columns card",
-                        figure={},
-                        style={'height':'450px', 'width': '800px'}
+                        figure={},                        
                     )
                 ]
             )
@@ -194,6 +192,8 @@ def update_date_range_select(exchange_value):
         dash.dependencies.Output('strat-vs-market', 'children'),
         dash.dependencies.Output('table', 'data'),
         dash.dependencies.Output('pnl-types', 'figure'),
+        dash.dependencies.Output('daily-btc', 'figure'),
+        dash.dependencies.Output('balance', 'figure'),
         
     ],        
     [
@@ -228,69 +228,36 @@ def calculate_monthly_returns (exchange, margin, start, end):
         'layout': {
             'title': 'Overview of Monthly Performance'
         }
-    }, f'{btc_returns:0.2f}%', f'{strat_returns:0.2f}%', f'{strat_vs_market:0.2f}%', dff.to_dict('records'), print_bar_plot(dff)
+    }, f'{btc_returns:0.2f}%', f'{strat_returns:0.2f}%', f'{strat_vs_market:0.2f}%', dff.to_dict('records'), print_bar_plot(dff), update_btc_price(dff), update_balance(dff)
 
 
 def print_bar_plot (dff):
     
-    long_df, short_df = get_bar_plot_dataframes(dff)
+    df_long, df_short = get_bar_plot_dataframes(dff)
     
-    return  go.Figure(
-        data=[
-            go.Bar(
-                x=long_df['Entry time'],
-                y=long_df['Pnl (incl fees)'],
-                name='long',                
-            ),
-            go.Bar(
-                x=short_df['Entry time'],
-                y=short_df['Pnl (incl fees)'],
-                name='short',                
-            )
-        ],
-        layout=go.Layout(
-            title='Pnl vs Trade Type',            
-        )
-    )
+    return {
+            'data': [go.Bar(name='Short',marker_color='black',x=df_short['Entry time'],y=df_short['Pnl (incl fees)']),
+                     go.Bar(name='Long',marker_color='indianred',x=df_long['Entry time'],y=df_long['Pnl (incl fees)']),
+                    ],
+            'layout': { 'title': 'PnL versus Trade Type', 'barmode' :'group', 'width' : 800, 'height' : 500 }
+          }
 
-
-@app.callback(  
-    [
-        dash.dependencies.Output('daily-btc', 'figure'),
-        dash.dependencies.Output('balance', 'figure'),
-    ],
-    [
-        dash.dependencies.Input('date-range-select', 'start_date'),
-        dash.dependencies.Input('date-range-select', 'end_date'),
-    ]
-)
-def upd_btc_and_balance(start, end):
-    
-    dff = apply_filter(df.copy(), 'Entry time', start, 'greater')    
-    dff = apply_filter(dff, 'Entry time', end, 'less') 
-    
-    return update_btc_price(dff), update_balance(dff) 
-
-def update_btc_price(dff):    
-    
-    return go.Figure(
-        data=[
-            go.Scatter(x=dff['Entry time'], y=dff['BTC Price'])            
-        ],
-        layout=go.Layout(
-            title='Daily BTC Price',            
-        )
-    )
+def update_btc_price(dff): 
+        
+    return {
+            'data': [
+                    go.Scatter(x=dff['Entry time'], y=dff['BTC Price'])                
+                    ],
+            'layout': { 'title': 'Daily BTC Price', 'width' : 500, 'height' : 500 }
+          }        
 
 def update_balance(dff):
-    return go.Figure(
-        data=[
-            go.Scatter(x=dff['Entry time'], y=dff['Exit balance'] - dff['Entry balance'])
-        ],
-        layout=go.Layout(
-            title='Portfolio Balance',
-        )
-    )
+    return {
+            'data': [
+                    go.Scatter(x=dff['Entry time'], y=dff['Exit balance'] - dff['Entry balance'])                
+                    ],
+            'layout': { 'title': 'Portfolio Balance', 'width' : 500, 'height' : 500 }
+          }      
 
 ####################
 # Helper Functions #
@@ -352,16 +319,12 @@ def calc_strat_returns(dff):
 def get_bar_plot_dataframes (dff):    
     dff_copy = dff.copy()    
     
-    # Grouping by year and week
-    dff_copy['Entry time'] = dff_copy['Entry time'].dt.strftime('%Y-%U')        
-    dff_long = dff_copy[dff_copy['Trade type']=='Long'].groupby('Entry time').sum().reset_index()
-    dff_short = dff_copy[dff_copy['Trade type']=='Short'].groupby('Entry time').sum().reset_index()
-    
     # Without grouping
-    # dff_long = dff_copy[dff_copy['Trade type']=='Long']
-    # dff_short = dff_copy[dff_copy['Trade type']=='Short']    
+    dff_long = dff_copy[dff_copy['Trade type']=='Long']
+    dff_short = dff_copy[dff_copy['Trade type']=='Short']    
         
     return dff_long, dff_short
 
-if __name__ == "__main__":
-    app.run_server(debug=True)
+if __name__ == "__main__":    
+    app.run_server(host= '0.0.0.0', debug=True)
+    
