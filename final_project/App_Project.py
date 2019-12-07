@@ -52,4 +52,4 @@ cross=cross_val_score(ensemble_lin_rbf,X,y, cv = 5,scoring = "roc_auc")
 print('The cross validated score is',cross.mean())
 
 
-pickle.dump(ensemble_lin_rbf, open('model.pkl', 'wb'))
+pickle.dump(ensemble_lin_rbf, open('model_aws.pkl', 'wb'))
