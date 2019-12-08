@@ -26,15 +26,27 @@ model = pickle.load(open('model.pkl','rb'))
 engine = create_engine('postgresql://postgres:lNUEtV9XYCMUukxKvVKJ@final-project-db-machine.cjrnch5aefyf.us-east-1.rds.amazonaws.com/postgres')
 df_project = pd.read_sql("SELECT * from fna_test", engine.connect())
 
-field1Desc = 'Perimeter worst'
-field2Desc = 'Radius worst'
-field3Desc = 'Concave points worst'
-field4Desc = 'Texture worst'
+print(df_project[['perimeter_worst', 'radius_worst','concave points_worst', 'texture_worst']].describe())
+
+field1Desc = 'Perimeter worst (50.41 - 251.20) '
+field2Desc = 'Radius worst (7.93 - 36.04) '
+field3Desc = 'Concave points worst (0.000 - 0.291)'
+field4Desc = 'Concave points(12.02 - 49.54) '
+
+popHeader1 = 'Perimeter worst'
+popHeader2 = 'Radius worst'
+popHeader3 = 'Concave points'
+popHeader4 = 'Concave points'
 
 field1DescLower = 'perimeter worst'
 field2DescLower = 'radius worst'
 field3DescLower = 'concave points worst'
 field4DescLower = 'texture worst'
+
+popBody1 = 'This correspond to the ' +field1DescLower + ' variable from the FNA test, and the allowed values are between 50.41 and 251.20'
+popBody2 = 'This correspond to the ' +field2DescLower + ' variable from the FNA test, and the allowed values are between 7.93 and 36.04'
+popBody3 = 'This correspond to the ' +field3DescLower + ' variable from the FNA test, and the allowed values are between 0.000 and 0.291'
+popBody4 = 'This correspond to the ' +field4DescLower + ' variable from the FNA test, and the allowed values are between 12.02 and 49.54'
 
 field1Name = 'perimeter_worst'
 field2Name = 'radius_worst'
@@ -45,6 +57,8 @@ field1DistPlotId = 'perimeterWorstDist'
 field2DistPlotId = 'radiusWorstDist'
 field3DistPlotId = 'concavePointsWorstDist'
 field4DistPlotId = 'textureWorstDist'
+
+
 
 # Libraries
 def getDistributionFigure(field, label, xTupla, yTupla):
@@ -61,7 +75,7 @@ def getDistributionFigure(field, label, xTupla, yTupla):
     fig=ff.create_distplot(hist_data, group_labels, bin_size=.2)
     fig.update_layout(title_text=label)
     if (xTupla is not None and yTupla is not None):
-        fig.add_trace(go.Scatter(x=xTupla, y=yTupla, mode='lines', line=go.scatter.Line(color='grey'), showlegend=False))
+        fig.add_trace(go.Scatter(x=xTupla, y=yTupla, mode='lines', line=go.scatter.Line(color='red'), showlegend=False))
     return fig
 
 ###################################################################################################################################################
@@ -110,6 +124,16 @@ app.layout = html.Div(children=[
                     dbc.FormGroup(
                         [
                             dbc.Label(field1Desc, html_for=field1Name),
+                            dbc.Button("?", id="popover-target-1", color="secondary", style={"margin":'10px', "height":"30px"}),
+                            dbc.Popover(
+                                [
+                                    dbc.PopoverHeader(popHeader1),
+                                    dbc.PopoverBody(popBody1),
+                                ],
+                                id="popover1",
+                                is_open=False,
+                                target="popover-target-1",
+                            ),
                             dbc.Input(
                                 type="number",
                                 id=field1Name,
@@ -123,6 +147,16 @@ app.layout = html.Div(children=[
                     dbc.FormGroup(
                         [
                             dbc.Label(field2Desc, html_for=field2Name),
+                            dbc.Button("?", id="popover-target-2", color="secondary", style={"margin":'10px', "height":"30px"}),
+                            dbc.Popover(
+                                [
+                                    dbc.PopoverHeader(popHeader2),
+                                    dbc.PopoverBody(popBody2),
+                                ],
+                                id="popover2",
+                                is_open=False,
+                                target="popover-target-2",
+                            ),
                             dbc.Input(
                                 type="number",
                                 id=field2Name,
@@ -137,20 +171,40 @@ app.layout = html.Div(children=[
                     dbc.FormGroup(
                         [
                             dbc.Label(field3Desc, html_for=field3Name),
+                            dbc.Button("?", id="popover-target-3", color="secondary", style={"margin":'10px', "height":"30px"}),
+                            dbc.Popover(
+                                [
+                                    dbc.PopoverHeader(popHeader3),
+                                    dbc.PopoverBody(popBody3),
+                                ],
+                                id="popover3",
+                                is_open=False,
+                                target="popover-target-3",
+                            ),
                             dbc.Input(
                                 type="number",
                                 id=field3Name,
                                 placeholder="Enter " + field3DescLower,
-                            ),
+                            ),  
+                            
                         ]
                     ),
                     width=6,
-                ),   
-                
+                ),                                                
                 dbc.Col(
                     dbc.FormGroup(
                         [
                             dbc.Label(field4Desc, html_for=field4Name),
+                            dbc.Button("?", id="popover-target-4", color="secondary", style={"margin":'10px', "height":"30px"}),
+                            dbc.Popover(
+                                [
+                                    dbc.PopoverHeader(popHeader4),
+                                    dbc.PopoverBody(popBody4)
+                                ],
+                                id="popover4",
+                                is_open=False,
+                                target="popover-target-4",
+                            ),
                             dbc.Input(
                                 type="number",
                                 id=field4Name,
@@ -160,7 +214,10 @@ app.layout = html.Div(children=[
                     ),
                     width=6,
                 ), 
-                dbc.Button("Submit", color="primary", id ="submit-button"),                                                        
+                dbc.Col(
+                    dbc.Button("Submit", color="primary", id ="submit-button"), 
+                ),
+                                                                       
             ],
             form=True,
         ),
@@ -170,7 +227,7 @@ app.layout = html.Div(children=[
             dbc.Col(
                 
                 html.Div(                      
-                    id='output_div',
+                    id='output_div',                    
                 ),
                 width=12
             )
@@ -269,6 +326,46 @@ def save_value(input_value):
     return ''
 '''
 
+@app.callback(
+    Output("popover1", "is_open"),
+    [Input("popover-target-1", "n_clicks")],
+    [State("popover1", "is_open")],
+)
+def toggle_popover(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@app.callback(
+    Output("popover2", "is_open"),
+    [Input("popover-target-2", "n_clicks")],
+    [State("popover2", "is_open")],
+)
+def toggle_popover(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@app.callback(
+    Output("popover3", "is_open"),
+    [Input("popover-target-3", "n_clicks")],
+    [State("popover3", "is_open")],
+)
+def toggle_popover(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@app.callback(
+    Output("popover4", "is_open"),
+    [Input("popover-target-4", "n_clicks")],
+    [State("popover4", "is_open")],
+)
+def toggle_popover(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
 @app.callback([Output('output_div', 'children'),
                Output(field1DistPlotId, 'figure'),               
                Output(field2DistPlotId, 'figure'),
@@ -297,7 +394,7 @@ def update_output(clicks, input_1, input_2, input_3, input_4):
     # Setting the location for the feature indicators
     figField1 = getDistributionFigure(field1Name, field1Desc, [input_1, input_1], [0, 0.12]) 
     figField2 = getDistributionFigure(field2Name, field2Desc, [input_2, input_2], [0, 0.3])
-    figField3 = getDistributionFigure(field3Name, field3Desc, [input_3, input_3], [0, 0.05]) 
+    figField3 = getDistributionFigure(field3Name, field3Desc, [input_3, input_3], [0, 10]) 
     figField4 = getDistributionFigure(field4Name, field4Desc, [input_4, input_4], [0, 0.17])            
 
     if clicks is not None:
@@ -326,7 +423,7 @@ def update_output(clicks, input_1, input_2, input_3, input_4):
                         dbc.Alert("There is a probability of "+ prob + " that the tumor is MALIGNANT", color="danger"),     
                     ], figField1, figField2, figField3, figField4
     else:
-        return [ ], figField1, figField2, figField3, figField4
+        return [ ], figField1, figField2, figField3, figField4  
 
 if __name__ == "__main__":    
     app.run_server(host= '0.0.0.0', debug=True)
