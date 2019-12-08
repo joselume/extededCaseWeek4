@@ -1,3 +1,4 @@
+# X = df[[ 'perimeter_worst', 'radius_worst','concave points_worst', 'texture_worst']]
 import pandas as pd
 import dash
 from dash.dependencies import Output, Input, State
@@ -25,17 +26,44 @@ model = pickle.load(open('model.pkl','rb'))
 engine = create_engine('postgresql://postgres:lNUEtV9XYCMUukxKvVKJ@final-project-db-machine.cjrnch5aefyf.us-east-1.rds.amazonaws.com/postgres')
 df_project = pd.read_sql("SELECT * from fna_test", engine.connect())
 
+field1Desc = 'Perimeter worst'
+field2Desc = 'Radius worst'
+field3Desc = 'Concave points worst'
+field4Desc = 'Texture worst'
+
+field1DescLower = 'perimeter worst'
+field2DescLower = 'radius worst'
+field3DescLower = 'concave points worst'
+field4DescLower = 'texture worst'
+
+field1Name = 'perimeter_worst'
+field2Name = 'radius_worst'
+field3Name = 'concave points_worst'
+field4Name = 'texture_worst'
+
+field1DistPlotId = 'perimeterWorstDist'
+field2DistPlotId = 'radiusWorstDist'
+field3DistPlotId = 'concavePointsWorstDist'
+field4DistPlotId = 'textureWorstDist'
+
 # Libraries
-def getDistributionFigure(field):
+def getDistributionFigure(field, label, xTupla, yTupla):
     # Define data sets
+  
     benign_df = df_project[df_project['diagnosis']=='B'][field]
     malign_df  = df_project[df_project['diagnosis']=='M'][field]    
     hist_data = [benign_df, malign_df]
     group_labels = ['Benign', 'Malignant']
+    #maxi=df_project.value_counts().iloc[0]
+    #print(maxi)
 
     # Create distplot with custom bin_size
-    return ff.create_distplot(hist_data, group_labels, bin_size=.2)
-    
+    fig=ff.create_distplot(hist_data, group_labels, bin_size=.2)
+    fig.update_layout(title_text=label)
+    if (xTupla is not None and yTupla is not None):
+        fig.add_trace(go.Scatter(x=xTupla, y=yTupla, mode='lines', line=go.scatter.Line(color='grey'), showlegend=False))
+    return fig
+
 ###################################################################################################################################################
 
 # Df from a local file
@@ -81,11 +109,11 @@ app.layout = html.Div(children=[
                 dbc.Col(
                     dbc.FormGroup(
                         [
-                            dbc.Label("Concave points mean", html_for="concave-points-mean"),
+                            dbc.Label(field1Desc, html_for=field1Name),
                             dbc.Input(
                                 type="number",
-                                id="concave-points-mean",
-                                placeholder="Enter concave points mean",
+                                id=field1Name,
+                                placeholder="Enter " + field1DescLower,
                             ),
                         ]
                     ),
@@ -94,11 +122,11 @@ app.layout = html.Div(children=[
                 dbc.Col(
                     dbc.FormGroup(
                         [
-                            dbc.Label("Texture mean", html_for="texture-mean"),
+                            dbc.Label(field2Desc, html_for=field2Name),
                             dbc.Input(
                                 type="number",
-                                id="texture-mean",
-                                placeholder="Enter texture mean",
+                                id=field2Name,
+                                placeholder="Enter " + field2DescLower,
                             ),
                         ]
                     ),
@@ -108,11 +136,11 @@ app.layout = html.Div(children=[
                 dbc.Col(
                     dbc.FormGroup(
                         [
-                            dbc.Label("Area mean", html_for="area-mean"),
+                            dbc.Label(field3Desc, html_for=field3Name),
                             dbc.Input(
                                 type="number",
-                                id="area-mean",
-                                placeholder="Enter area mean",
+                                id=field3Name,
+                                placeholder="Enter " + field3DescLower,
                             ),
                         ]
                     ),
@@ -122,11 +150,11 @@ app.layout = html.Div(children=[
                 dbc.Col(
                     dbc.FormGroup(
                         [
-                            dbc.Label("Compactness mean", html_for="compactness-mean"),
+                            dbc.Label(field4Desc, html_for=field4Name),
                             dbc.Input(
                                 type="number",
-                                id="compactness-mean",
-                                placeholder="Enter compactness mean",
+                                id=field4Name,
+                                placeholder="Enter " + field4DescLower,
                             ),
                         ]
                     ),
@@ -141,11 +169,7 @@ app.layout = html.Div(children=[
         dbc.Row( 
             dbc.Col(
                 
-                html.Div(  
-                    children=
-                    [                    
-                        dbc.Alert("The pacient is cancer free! Contratulations!", color="success"),                 
-                    ],
+                html.Div(                      
                     id='output_div',
                 ),
                 width=12
@@ -162,8 +186,8 @@ app.layout = html.Div(children=[
                             className="twelve columns card",
                             children=[
                                 dcc.Graph(
-                                    id="distribution1",
-                                    figure=getDistributionFigure('radius_mean')                        
+                                    id=field1DistPlotId,
+                                    figure=getDistributionFigure(field1Name, field1Desc, None, None)                        
                                 )
                             ]
                         )
@@ -179,8 +203,8 @@ app.layout = html.Div(children=[
                             className="twelve columns card",
                             children=[
                                 dcc.Graph(
-                                    id="distribution2",
-                                    figure=getDistributionFigure('texture_mean')                                            
+                                    id=field2DistPlotId,
+                                    figure=getDistributionFigure(field2Name, field2Desc, None, None)                                            
                                 )
                             ]
                         )
@@ -201,8 +225,8 @@ app.layout = html.Div(children=[
                             className="twelve columns card",
                             children=[
                                 dcc.Graph(
-                                    id="distribution3",
-                                    figure=getDistributionFigure('perimeter_mean')                        
+                                    id=field3DistPlotId,
+                                    figure=getDistributionFigure(field3Name, field3Desc, None, None)                        
                                 )
                             ]
                         )
@@ -218,8 +242,8 @@ app.layout = html.Div(children=[
                             className="twelve columns card",
                             children=[
                                 dcc.Graph(
-                                    id="distribution4",
-                                    figure=getDistributionFigure('area_mean')                                            
+                                    id=field4DistPlotId,
+                                    figure=getDistributionFigure(field4Name, field4Desc, None, None)                                            
                                 )
                             ]
                         )
@@ -245,39 +269,64 @@ def save_value(input_value):
     return ''
 '''
 
-@app.callback(Output('output_div', 'children'),
+@app.callback([Output('output_div', 'children'),
+               Output(field1DistPlotId, 'figure'),               
+               Output(field2DistPlotId, 'figure'),
+               Output(field3DistPlotId, 'figure'),
+               Output(field4DistPlotId, 'figure')
+              ],
               [Input('submit-button', 'n_clicks')],
-              [State('concave-points-mean', 'value'),
-              State('texture-mean', 'value'),
-              State('area-mean', 'value'),
-              State('compactness-mean', 'value')
+              [State(field1Name, 'value'),
+              State(field2Name, 'value'),
+              State(field3Name, 'value'),
+              State(field4Name, 'value')
               ],
                   ) 
 def update_output(clicks, input_1, input_2, input_3, input_4):
+    
+    # Initializing the null values    
+    if input_1 == None:
+            input_1 = 0
+    if input_2 == None:
+            input_2 = 0 
+    if input_3 == None:
+            input_3 = 0 
+    if input_4 == None:
+            input_4 = 0
+            
+    # Setting the location for the feature indicators
+    figField1 = getDistributionFigure(field1Name, field1Desc, [input_1, input_1], [0, 0.12]) 
+    figField2 = getDistributionFigure(field2Name, field2Desc, [input_2, input_2], [0, 0.3])
+    figField3 = getDistributionFigure(field3Name, field3Desc, [input_3, input_3], [0, 0.05]) 
+    figField4 = getDistributionFigure(field4Name, field4Desc, [input_4, input_4], [0, 0.17])            
+
     if clicks is not None:
-        data = {'concave points_mean': input_1,
-                'texture_mean': input_2,
-                'area_mean': input_3,
-                'compactness_mean':input_4}
+        data = {field1Name: input_1,
+                field2Name: input_2,
+                field3Name: input_3,
+                field4Name: input_4}
         
         # convert data into dataframe
         data.update((x, [y]) for x, y in data.items())
         data_df = pd.DataFrame.from_dict(data)
+            
+        probatility = model.predict_proba(data_df)
         
-    
+        
         result = model.predict(data_df)
-        
+         
         if result == 0:
+            prob = str(round(float(probatility[0][0])*100.0, 2))+"%"            
             return [                    
-                        dbc.Alert("Negative diagnosis", color="success"),                 
-                    ]
-        elif result == 1:
+                        dbc.Alert("There is a probability of "+ prob + " that the tumor is BENIGN", color="success"),                 
+                    ], figField1, figField2, figField3, figField4
+        else:
+            prob = str(round(float(probatility[0][1])*100.0, 2))+"%"
             return [                    
-                        dbc.Alert("Positive diagnosis", color="danger"),                 
-                    ]
-                    
-        print('result: '+str(result))
+                        dbc.Alert("There is a probability of "+ prob + " that the tumor is MALIGNANT", color="danger"),     
+                    ], figField1, figField2, figField3, figField4
+    else:
+        return [ ], figField1, figField2, figField3, figField4
 
 if __name__ == "__main__":    
     app.run_server(host= '0.0.0.0', debug=True)
-    
