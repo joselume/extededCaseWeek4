@@ -57,4 +57,4 @@ print('The accuracy for ensembled model is:',ensemble_lin_rbf.score(X.iloc[test]
 #cross=cross_val_score(ensemble_lin_rbf,X,y, cv = 5,scoring = "roc_auc")
 #print('The cross validated score is',cross.mean())
 
-pickle.dump(ensemble_lin_rbf, open('model.pkl', 'wb'))
+pickle.dump(ensemble_lin_rbf, open('model_aws.pkl', 'wb'))

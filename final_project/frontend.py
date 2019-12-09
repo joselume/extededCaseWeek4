@@ -20,23 +20,23 @@ import pickle
 ###################################################################################################################################################
 
 # load model
-model = pickle.load(open('model_aws.pkl','rb'))
+model = pickle.load(open('model.pkl','rb'))
 
 # Final project
 engine = create_engine('postgresql://postgres:lNUEtV9XYCMUukxKvVKJ@final-project-db-machine.cjrnch5aefyf.us-east-1.rds.amazonaws.com/postgres')
 df_project = pd.read_sql("SELECT * from fna_test", engine.connect())
 
-# print(df_project[['perimeter_worst', 'radius_worst','concave points_worst', 'texture_worst']].describe())
+print(df_project[['perimeter_worst', 'radius_worst','concave points_worst', 'texture_worst']].describe())
 
 field1Desc = 'Perimeter worst (50.41 - 251.20) '
 field2Desc = 'Radius worst (7.93 - 36.04) '
 field3Desc = 'Concave points worst (0.000 - 0.291)'
-field4Desc = 'Concave points(12.02 - 49.54) '
+field4Desc = 'Texture worst (12.02 - 49.54) '
 
 popHeader1 = 'Perimeter worst'
 popHeader2 = 'Radius worst'
 popHeader3 = 'Concave points'
-popHeader4 = 'Concave points'
+popHeader4 = 'Texture worst'
 
 field1DescLower = 'perimeter worst'
 field2DescLower = 'radius worst'
