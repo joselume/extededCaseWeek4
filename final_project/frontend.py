@@ -20,13 +20,13 @@ import pickle
 ###################################################################################################################################################
 
 # load model
-model = pickle.load(open('model.pkl','rb'))
+model = pickle.load(open('model_aws.pkl','rb'))
 
 # Final project
 engine = create_engine('postgresql://postgres:lNUEtV9XYCMUukxKvVKJ@final-project-db-machine.cjrnch5aefyf.us-east-1.rds.amazonaws.com/postgres')
 df_project = pd.read_sql("SELECT * from fna_test", engine.connect())
 
-print(df_project[['perimeter_worst', 'radius_worst','concave points_worst', 'texture_worst']].describe())
+# print(df_project[['perimeter_worst', 'radius_worst','concave points_worst', 'texture_worst']].describe())
 
 field1Desc = 'Perimeter worst (50.41 - 251.20) '
 field2Desc = 'Radius worst (7.93 - 36.04) '
@@ -108,11 +108,11 @@ app.layout = html.Div(children=[
                     ),                                        
                     html.Hr(className="my-2"),
                     html.P(
-                        'Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass. They describe characteristics of the cell nuclei present in the image. n the 3-dimensional space is that described in: [K. P. Bennett and O. L. Mangasarian: "Robust Linear Programming Discrimination of Two Linearly Inseparable Sets", Optimization Methods and Software 1, 1992, 23-34].'),
+                        'Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass. They describe characteristics of the cell nuclei present in the image. The 3-dimensional space is described in: [K. P. Bennett and O. L. Mangasarian: "Robust Linear Programming Discrimination of Two Linearly Inseparable Sets", Optimization Methods and Software 1, 1992, 23-34].'),
                     html.P(
-                    'To know more about the origin of this data set please visit the official website using the following link:'),
+                    'To know more about the origin of the used dataset please visit the official website using the following link:'),
                                                                     
-                    html.P(dbc.Button("Official website", color="primary", href='https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29'), className="lead"),
+                    html.P(dbc.Button("Reference", color="primary", href='https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29'), className="lead"),
                 ]
             )            
         )),  
