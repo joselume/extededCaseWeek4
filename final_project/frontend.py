@@ -58,6 +58,8 @@ field2DistPlotId = 'radiusWorstDist'
 field3DistPlotId = 'concavePointsWorstDist'
 field4DistPlotId = 'textureWorstDist'
 
+
+
 # Libraries
 def getDistributionFigure(field, label, xTupla, yTupla):
     # Define data sets
@@ -111,7 +113,7 @@ app.layout = html.Div(children=[
                     'To know more about the origin of the used dataset please visit the official website using the following link:'),
                                                                     
                     html.P(dbc.Button("Reference", color="primary", href='https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29'), className="lead"),
-                ],               
+                ]
             )            
         )),  
         
