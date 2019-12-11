@@ -20,7 +20,7 @@ import pickle
 ###################################################################################################################################################
 
 # load model
-model = pickle.load(open('model.pkl','rb'))
+model = pickle.load(open('model_aws.pkl','rb'))
 
 # Final project
 engine = create_engine('postgresql://postgres:lNUEtV9XYCMUukxKvVKJ@final-project-db-machine.cjrnch5aefyf.us-east-1.rds.amazonaws.com/postgres')
@@ -43,10 +43,10 @@ field2DescLower = 'radius worst'
 field3DescLower = 'concave points worst'
 field4DescLower = 'texture worst'
 
-popBody1 = 'This correspond to the ' +field1DescLower + ' variable from the FNA test, and the allowed values are between 50.41 and 251.20'
-popBody2 = 'This correspond to the ' +field2DescLower + ' variable from the FNA test, and the allowed values are between 7.93 and 36.04'
-popBody3 = 'This correspond to the ' +field3DescLower + ' variable from the FNA test, and the allowed values are between 0.000 and 0.291'
-popBody4 = 'This correspond to the ' +field4DescLower + ' variable from the FNA test, and the allowed values are between 12.02 and 49.54'
+popBody1 = 'Worst perimeter is the mean of the three largest distance around the nuclear border of all nuclei in the image.'
+popBody2 = 'Worst radius is the mean of the three largest radial line segments from the center of the nuclear mass of all nuclei in the image.'
+popBody3 = 'Worst concave points is the mean of the three largest number of points in the nuclear border that lie on an indentation of all nuclei in the image.'
+popBody4 = 'Worst texture is the mean of the three largest variations of the gray scale intensities of all nuclei in the image.'
 
 field1Name = 'perimeter_worst'
 field2Name = 'radius_worst'
@@ -57,8 +57,6 @@ field1DistPlotId = 'perimeterWorstDist'
 field2DistPlotId = 'radiusWorstDist'
 field3DistPlotId = 'concavePointsWorstDist'
 field4DistPlotId = 'textureWorstDist'
-
-
 
 # Libraries
 def getDistributionFigure(field, label, xTupla, yTupla):
@@ -95,9 +93,9 @@ app.layout = html.Div(children=[
             
             dbc.Jumbotron(
                 [
-                    html.H1("Breast cancer Diagnosis Prediction", className="display-3"),
+                    html.H1("Breast Cancer Diagnosis Prediction", className="display-3"),
                     html.P(
-                        "Final project done for the DS4A Colombian program",                        
+                        "Final project done for the DS4A Colombian Program",                        
                         className="lead",
                     ),
                     html.P(
@@ -113,7 +111,7 @@ app.layout = html.Div(children=[
                     'To know more about the origin of the used dataset please visit the official website using the following link:'),
                                                                     
                     html.P(dbc.Button("Reference", color="primary", href='https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29'), className="lead"),
-                ]
+                ],               
             )            
         )),  
         
